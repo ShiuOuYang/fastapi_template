@@ -8,6 +8,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+# Allow direct execution like: python src/app/main.py
+if __package__ in (None, ""):
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from app.api.v1.routes import analysis, board, excel, file_search, probe_result, test_run
 from app.core.config import settings
 from app.core.database import init_db
@@ -102,11 +109,15 @@ async def global_exception_handler(
 
 
 if __name__ == "__main__":
+    from pathlib import Path
+
     import uvicorn
 
+    src_dir = Path(__file__).resolve().parents[1]
     uvicorn.run(
         "app.main:app",
-        host="localhost",
+        host="0.0.0.0",
         port=settings.APP_PORT,
         reload=(settings.APP_ENV == "development"),
+        app_dir=str(src_dir),
     )
