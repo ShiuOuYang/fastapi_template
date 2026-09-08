@@ -17,7 +17,7 @@ from app.core.config import settings
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Start Flying Probe Analysis System API from project root."
+        description="Start the FastAPI application from the project root."
     )
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=settings.APP_PORT)

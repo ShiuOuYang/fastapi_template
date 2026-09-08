@@ -193,8 +193,8 @@ Excel 欄位名可能是英文、中文、縮寫各種寫法，用別名自動�
 
 ```python
 rules = [
-    ColumnRule(name="板子名稱", aliases=["Board Name", "board_name", "PCB"]),
-    ColumnRule(name="測試值",  aliases=["Test Value", "value", "量測值"]),
+    ColumnRule(name="產品名稱", aliases=["Product Name", "product_name", "SKU"]),
+    ColumnRule(name="數值",  aliases=["Value", "value", "量測值"]),
     ColumnRule(name="操作員",  aliases=["Operator", "OP", "作業員"]),
 ]
 
@@ -202,7 +202,7 @@ handler = ExcelHandler("data/report.xlsx")
 df = handler.read_sheet()
 
 mapping = handler.auto_map_columns(rules, df=df)
-# {'板子名稱': 'Board Name', '測試值': 'Test Value', '操作員': 'Operator'}
+# {'產品名稱': 'Product Name', '數值': 'Value', '操作員': 'Operator'}
 # 找不到的欄位（如 Excel 中沒有操作員相關欄位）不會出現在結果中
 ```
 
@@ -458,7 +458,7 @@ wb = Workbook()
 ws = wb.active
 
 # 寫入資料（第 1 行表頭，第 2~6 行資料）
-ws.append(["批次", "良率 (%)"])
+ws.append(["批次", "銷售額"])
 for batch, rate in [("B1", 98), ("B2", 95), ("B3", 99), ("B4", 92), ("B5", 97)]:
     ws.append([batch, rate])
 
@@ -472,10 +472,10 @@ handler.add_chart(
     chart_type=ChartType.BAR,
     data_range=(2, 1, 2, 6),         # 資料範圍 (min_col, min_row, max_col, max_row)
     categories_range=(1, 2, 1, 6),   # 分類軸範圍
-    title="良率趨勢",
+    title="銷售趨勢",
     position="D2",                   # 圖表放置位置
     x_axis_title="批次",
-    y_axis_title="良率 (%)",
+    y_axis_title="銷售額",
     width=15.0,                      # 圖表寬度（英吋）
     height=10.0,                     # 圖表高度（英吋）
 )
@@ -528,20 +528,20 @@ df = handler.read_sheet()
 # 2. 定義欄位規則
 rules = [
     ColumnRule(
-        name="board_name",
-        aliases=["Board Name", "板子名稱"],
+        name="product_name",
+        aliases=["Product Name", "產品名稱"],
         data_type=DataType.STRING,
         required=True,
     ),
     ColumnRule(
-        name="panel_id",
-        aliases=["Panel ID", "面板編號"],
+        name="category",
+        aliases=["Category", "分類"],
         data_type=DataType.STRING,
         required=True,
     ),
     ColumnRule(
-        name="test_value",
-        aliases=["Test Value", "測試值"],
+        name="value",
+        aliases=["Value", "數值"],
         data_type=DataType.FLOAT,
         min_value=0,
         max_value=100,
@@ -595,8 +595,8 @@ async def upload_excel(file: UploadFile = File(...)):
         df = handler.read_sheet()
 
         rules = [
-            ColumnRule(name="board_name", aliases=["Board Name"], data_type=DataType.STRING, required=True),
-            ColumnRule(name="value", aliases=["Test Value"], data_type=DataType.FLOAT, min_value=0),
+            ColumnRule(name="product_name", aliases=["Product Name"], data_type=DataType.STRING, required=True),
+            ColumnRule(name="value", aliases=["Value"], data_type=DataType.FLOAT, min_value=0),
         ]
 
         mapping = handler.auto_map_columns(rules, df=df)
@@ -627,12 +627,12 @@ from fastapi.responses import StreamingResponse
 async def export_excel():
     """匯出報表為 Excel 下載。"""
     data = [
-        {"批次": "B001", "良率": 98.5, "不良數": 3},
-        {"批次": "B002", "良率": 95.2, "不良數": 10},
+        {"批次": "B001", "銷售額": 98.5, "退貨數": 3},
+        {"批次": "B002", "銷售額": 95.2, "退貨數": 10},
     ]
 
     handler = ExcelHandler()
-    buffer = handler.write(data=data, output_path=None, sheet_name="良率報表")
+    buffer = handler.write(data=data, output_path=None, sheet_name="銷售報表")
 
     return StreamingResponse(
         buffer,

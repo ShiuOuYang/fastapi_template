@@ -203,9 +203,9 @@ def example_6_read_and_validate_pipeline() -> None:
 
     # 1. 建立模擬檔案
     df_source = pd.DataFrame({
-        "Board Name": ["PCB-001", "PCB-002", "PCB-003"],
-        "Panel ID": ["P01", "P02", ""],
-        "Test Value": [1.5, 2.0, 999.0],
+        "Product Name": ["SKU-001", "SKU-002", "SKU-003"],
+        "Category": ["P01", "P02", ""],
+        "Value": [1.5, 2.0, 999.0],
     })
     test_file = OUTPUT_DIR / "06_pipeline_test.xlsx"
     ExcelHandler().write(df_source, output_path=test_file)
@@ -218,20 +218,20 @@ def example_6_read_and_validate_pipeline() -> None:
     # 3. 定義規則
     rules = [
         ColumnRule(
-            name="board_name",
-            aliases=["Board Name", "板子名稱"],
+            name="product_name",
+            aliases=["Product Name", "產品名稱"],
             data_type=DataType.STRING,
             required=True,
         ),
         ColumnRule(
-            name="panel_id",
-            aliases=["Panel ID", "面板編號"],
+            name="category",
+            aliases=["Category", "分類"],
             data_type=DataType.STRING,
             required=True,
         ),
         ColumnRule(
-            name="test_value",
-            aliases=["Test Value", "測試值"],
+            name="value",
+            aliases=["Value", "數值"],
             data_type=DataType.FLOAT,
             min_value=0,
             max_value=100,
@@ -262,10 +262,10 @@ def example_7_chart() -> None:
 
     wb = Workbook()
     ws = wb.active
-    ws.title = "良率報表"
+    ws.title = "銷售報表"
 
     # 寫入資料
-    headers = ["批次", "良率 (%)", "不良數"]
+    headers = ["批次", "銷售額", "退貨數"]
     data_rows = [
         ["Batch-01", 98.5, 3],
         ["Batch-02", 95.2, 10],
@@ -287,11 +287,11 @@ def example_7_chart() -> None:
     handler.add_chart(
         ws,
         chart_type=ChartType.BAR,
-        data_range=(2, 1, 2, 6),       # 良率欄 B1:B6（含標題）
+        data_range=(2, 1, 2, 6),       # 銷售額欄 B1:B6（含標題）
         categories_range=(1, 2, 1, 6),  # 批次名 A2:A6
-        title="各批次良率",
+        title="各批次銷售額",
         position="E2",
-        y_axis_title="良率 (%)",
+        y_axis_title="銷售額",
     )
 
     # 折線圖
@@ -300,9 +300,9 @@ def example_7_chart() -> None:
         chart_type=ChartType.LINE,
         data_range=(3, 1, 3, 6),
         categories_range=(1, 2, 1, 6),
-        title="不良數趨勢",
+        title="退貨數趨勢",
         position="E18",
-        y_axis_title="不良數",
+        y_axis_title="退貨數",
     )
 
     out = OUTPUT_DIR / "07_chart.xlsx"

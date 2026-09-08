@@ -24,3 +24,8 @@ Thumbs.db
 
 # 範例輸出
 output_examples/
+
+# 測試
+.pytest_cache/
+.coverage
+htmlcov/
