@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Annotated
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing_extensions import Annotated  # typing.Annotated 需 Python 3.9+
 
 from app.core.database import get_session
 

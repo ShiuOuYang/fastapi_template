@@ -5,7 +5,7 @@ clone 下來改個名字就能直接開始寫業務邏輯。
 
 ## 技術棧
 
-- **Python** 3.9+
+- **Python** 3.8（公司環境標準；依賴版本上限已對齊 3.8，程式碼勿使用 3.9+ 語法）
 - **FastAPI** + Uvicorn
 - **SQLAlchemy 2.0**（async）+ SQL Server
 - **aioodbc** + pyodbc（ODBC Driver 18 for SQL Server）

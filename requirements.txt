@@ -1,12 +1,16 @@
+# 版本上限對齊 Python 3.8 可用的最後版本（公司環境為 3.8），
+# 升級 Python 前請勿放寬上限。
+
 # ---------- 核心 ----------
-fastapi>=0.115.0,<1.0.0
-uvicorn[standard]>=0.30.0,<1.0.0
+fastapi>=0.115.0,<0.125.0
+uvicorn[standard]>=0.30.0,<0.34.0
 
 # ---------- 設定與驗證 ----------
-pydantic>=2.7.0,<3.0.0
-pydantic-settings>=2.3.0,<3.0.0
+pydantic>=2.7.0,<2.11.0
+pydantic-settings>=2.3.0,<2.9.0
+typing-extensions>=4.6.0
 
 # ---------- 資料庫（SQL Server / async）----------
 sqlalchemy[asyncio]>=2.0.30,<2.1.0
 aioodbc>=0.5.0,<0.6.0
-pyodbc>=5.1.0,<6.0.0
+pyodbc>=5.1.0,<5.3.0
