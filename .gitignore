@@ -22,9 +22,6 @@ venv/
 Thumbs.db
 .DS_Store
 
-# 範例輸出
-output_examples/
-
 # 測試
 .pytest_cache/
 .coverage

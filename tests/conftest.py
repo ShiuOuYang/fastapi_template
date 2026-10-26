@@ -1,19 +1,11 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import AsyncGenerator
 
-import pytest
 import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 
-SRC_DIR = Path(__file__).resolve().parents[1] / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-
-from httpx import ASGITransport, AsyncClient  # noqa: E402
-
-from app.main import app  # noqa: E402
+from app.main import app
 
 
 @pytest_asyncio.fixture

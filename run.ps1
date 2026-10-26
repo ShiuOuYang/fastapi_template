@@ -1,19 +1,21 @@
+# 包裝 run.py：優先使用專案內 venv 的 Python。
+# 沒指定 -BindHost / -Port 時，沿用 run.py 的預設值（Port 來自 .env 的 APP_PORT）。
 param(
-    [string]$Host = "0.0.0.0",
-    [int]$Port = 8000,
+    [string]$BindHost,
+    [int]$Port,
     [switch]$NoReload
 )
 
 Set-Location $PSScriptRoot
-
-$reloadArgs = @()
-if (-not $NoReload) {
-    $reloadArgs += "--reload"
-}
 
 $pythonExe = Join-Path $PSScriptRoot "venv\Scripts\python.exe"
 if (-not (Test-Path $pythonExe)) {
     $pythonExe = "python"
 }
 
-& $pythonExe -m uvicorn app.main:app --app-dir src --host $Host --port $Port @reloadArgs
+$runArgs = @()
+if ($PSBoundParameters.ContainsKey("BindHost")) { $runArgs += @("--host", $BindHost) }
+if ($PSBoundParameters.ContainsKey("Port")) { $runArgs += @("--port", $Port) }
+if ($NoReload) { $runArgs += "--no-reload" }
+
+& $pythonExe run.py @runArgs

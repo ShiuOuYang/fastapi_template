@@ -11,14 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-# 允許直接執行：python src/app/main.py
-if __package__ in (None, ""):
-    import sys
-    from pathlib import Path
-
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from app.api.v1.routes import excel, file_search, item
+from app.api.v1.routes import item
 from app.core.config import settings
 from app.core.database import close_db, init_db
 from app.schemas.base import ApiResponse
@@ -73,8 +66,6 @@ async def root() -> ApiResponse:
 # ---------- 註冊路由 ----------
 # 新增模組時，在此加一行 include_router 即可。
 app.include_router(item.router, prefix=settings.API_V1_PREFIX)
-app.include_router(excel.router, prefix=settings.API_V1_PREFIX)
-app.include_router(file_search.router, prefix=settings.API_V1_PREFIX)
 
 
 # ---------- 全域例外處理 ----------
@@ -127,17 +118,3 @@ async def global_exception_handler(
         content=ApiResponse(success=False, message=message).model_dump(),
     )
 
-
-if __name__ == "__main__":
-    from pathlib import Path
-
-    import uvicorn
-
-    src_dir = Path(__file__).resolve().parents[1]
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=settings.APP_PORT,
-        reload=settings.is_development,
-        app_dir=str(src_dir),
-    )

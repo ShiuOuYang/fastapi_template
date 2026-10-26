@@ -1,17 +1,16 @@
 # FastAPI Template
 
-一個乾淨、分層清楚的 FastAPI 後端模板，附帶 Excel 處理與檔案搜尋兩組通用工具。
+一個乾淨、分層清楚的 FastAPI 後端模板。
 clone 下來改個名字就能直接開始寫業務邏輯。
 
 ## 技術棧
 
-- **Python** 3.8+
+- **Python** 3.9+
 - **FastAPI** + Uvicorn
 - **SQLAlchemy 2.0**（async）+ SQL Server
 - **aioodbc** + pyodbc（ODBC Driver 18 for SQL Server）
 - **Pydantic v2** 資料驗證
 - **pydantic-settings** 環境變數管理
-- **pandas** + **openpyxl**（Excel 工具）
 
 ## 專案結構
 
@@ -22,8 +21,6 @@ src/
       deps.py              # 共用依賴（SessionDep 等）
       v1/routes/
         item.py            # 範例 CRUD 路由
-        excel.py           # Excel 工具 API
-        file_search.py     # 檔案搜尋 API
     core/
       config.py            # 環境設定（從 .env 載入）
       database.py          # engine / AsyncSession factory / 交易邊界
@@ -35,11 +32,9 @@ src/
       base.py              # 泛型 CRUD 基底類別
       item.py              # 範例資料存取層
     services/              # 商業邏輯層
-    utils/                 # Excel、檔案搜尋等通用工具
     main.py                # FastAPI 應用程式入口
 tests/                     # pytest 測試
-docs/                      # 工具模組詳細文件
-run.py / run.ps1           # 啟動腳本
+run.py / run.ps1           # 啟動腳本（run.ps1 會優先使用 venv 的 Python）
 ```
 
 ## 分層原則
@@ -94,7 +89,7 @@ python run.py                 # 建議做法，從專案根目錄啟動
 ```
 
 ```powershell
-.\run.ps1                     # PowerShell
+.\run.ps1                     # PowerShell，可加 -Port 9000、-NoReload
 ```
 
 ```bash
@@ -112,7 +107,8 @@ python -m uvicorn app.main:app --app-dir src --host 0.0.0.0 --port 8000 --reload
 pytest
 ```
 
-內建的測試不需要真實資料庫，開箱即可跑。
+內建的測試不需要真實資料庫，但仍需安裝 ODBC driver manager
+（Windows 內建；Linux 需 `unixodbc`，macOS 需 `brew install unixodbc`）。
 
 ## 統一回應格式
 
@@ -143,11 +139,6 @@ pytest
 |------|------|------|
 | Health | `GET /` | 健康檢查 |
 | Item | `/api/v1/items` | 範例 CRUD（GET / POST / PATCH / DELETE） |
-| Excel | `/api/v1/excel` | Excel 讀寫、驗證、合併、匯出 |
-| File Search | `/api/v1/files` | 目錄瀏覽、搜尋、統計、重複偵測 |
-
-工具模組的完整用法見 [`docs/EXCEL_HANDLER.md`](docs/EXCEL_HANDLER.md) 與
-[`docs/FILE_SEARCHER.md`](docs/FILE_SEARCHER.md)。
 
 ## 新增一個模組
 
@@ -172,9 +163,8 @@ src/app/services/item.py
 src/app/api/v1/routes/item.py
 ```
 
-再清掉 `models/__init__.py` 的匯出與 `main.py` 的 `include_router`。
-同理，不需要 Excel / 檔案搜尋時，刪掉 `utils/` 與對應 route、docs，
-並從 `requirements.txt` 移除 `pandas` 與 `openpyxl`。
+再清掉 `models/__init__.py` 的匯出、`main.py` 的 `include_router`，
+以及 `tests/test_health.py` 裡對 `/api/v1/items` 的斷言。
 
 ## 連線字串格式
 
