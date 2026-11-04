@@ -1,5 +1,7 @@
 -r requirements.txt
 
-pytest>=7.4.0,<9.0.0
-pytest-asyncio>=0.21.0,<0.24.0
-httpx>=0.24.0,<0.28.0
+# pytest 6.2.3 只能搭配 pytest-asyncio < 0.20（0.20 起要求 pytest >= 7）
+pytest==6.2.3
+pytest-asyncio>=0.17,<0.20
+# Starlette 0.41 的 TestClient / httpx.ASGITransport；0.28 移除了舊參數，先鎖 0.27
+httpx>=0.24,<0.28

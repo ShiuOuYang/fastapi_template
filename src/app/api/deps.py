@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing_extensions import Annotated  # Python 3.8 的 typing 沒有 Annotated（3.9+ 才有）
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession

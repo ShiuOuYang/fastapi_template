@@ -31,9 +31,13 @@ class BaseRepository(Generic[ModelT]):
         return await self.session.get(self.model, obj_id)
 
     async def list(self, skip: int = 0, limit: int = 50) -> List[ModelT]:
-        """分頁查詢多筆。"""
+        """分頁查詢多筆。
+
+        SQL Server 的 OFFSET 一定要搭配 ORDER BY，這裡預設依主鍵排序。
+        """
+        pk_cols = list(self.model.__mapper__.primary_key)
         result = await self.session.execute(
-            select(self.model).offset(skip).limit(limit)
+            select(self.model).order_by(*pk_cols).offset(skip).limit(limit)
         )
         return list(result.scalars().all())
 

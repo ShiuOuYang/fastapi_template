@@ -55,6 +55,17 @@ from app.utils.excel_validation import (
 logger = logging.getLogger(__name__)
 
 
+
+def dataframe_to_records(df: pd.DataFrame) -> List[Dict[str, Any]]:
+    """DataFrame 轉 List[Dict]，空值（NaN / NaT）一律轉成 None。
+
+    不能直接用 `df.where(df.notna(), None)`：在 pandas 1.x，float 與
+    datetime 欄位會把 None 又轉回 NaN / NaT，回傳 JSON 時就會 500。
+    先 `astype(object)` 再替換，順便把 numpy 數值轉成 Python 原生型別。
+    """
+    return df.astype(object).where(df.notna(), None).to_dict(orient="records")
+
+
 class ExcelHandler:
     """
     通用 Excel 資料處理器。
@@ -841,7 +852,7 @@ class ExcelHandler:
                 raise ValueError(
                     f"找不到 Sheet '{sheet_name}' 的 DataFrame，請先呼叫 read_sheet()"
                 )
-        return df.where(df.notna(), None).to_dict(orient="records")
+        return dataframe_to_records(df)
 
     # ======================================================================
     # 內部方法
