@@ -13,6 +13,23 @@ clone 下來改個名字就能直接開始寫業務邏輯。
 - **pydantic-settings** 環境變數管理
 - **pandas** + **openpyxl**（Excel 工具）
 
+## Python 3.8 / Anaconda 2021.05 相容性
+
+`requirements.txt` 已鎖成在 Python 3.8.8 實測通過的版本（FastAPI 0.116.1、Pydantic 2.10.6、
+pandas 1.2.4、openpyxl 3.0.7、pyodbc 5.2.0、pytest 6.2.3）。為了在這個環境跑起來做過的調整：
+
+- `typing.Annotated` 是 3.9 才有，`api/deps.py` 改從 `typing_extensions` 匯入。
+- pandas 1.x 的 `df.where(df.notna(), None)` 不會把 float / datetime 欄位的 NaN、NaT 換成 None，
+  回 JSON 時會 500。改用 `utils/excel_handler.py` 的 `dataframe_to_records()`。
+- 下載檔名含中文時 header 會 latin-1 編碼錯誤，改用 `filename*=UTF-8''...`。
+- SQL Server 的 OFFSET 必須搭配 ORDER BY，`BaseRepository.list()` 預設依主鍵排序。
+- pytest 6.2 不支援 `pythonpath` 設定、pytest-asyncio 需 < 0.20。
+
+**不要升級** numpy 到 1.21 以上或 pandas 到 1.3 以上而不重新測試；Python 3.8 本身也已停止維護，
+之後有機會建議升到 3.11 / 3.12 再放寬版本。
+
+本機只裝了 **ODBC Driver 17** 的話，把 `.env` 的 `DB_DRIVER` 改成 `ODBC Driver 17 for SQL Server`。
+
 ## 專案結構
 
 ```

@@ -1,18 +1,27 @@
+# 已在 Python 3.8.8（Anaconda 2021.05）環境下實測的版本組合。
+# 套件版本互相牽制，升級前請先在虛擬環境測過。
+
 # ---------- 核心 ----------
-fastapi>=0.100.0,<0.112.0
-uvicorn[standard]>=0.20.0,<0.28.0
-python-multipart>=0.0.9,<0.1.0
+fastapi==0.116.1
+starlette==0.41.1
+uvicorn==0.30.0
+python-multipart==0.0.20
 
 # ---------- 設定與驗證 ----------
-pydantic>=2.0.0,<2.6.0
-pydantic-settings>=2.0.0,<2.2.0
-python-dotenv>=1.0.0,<1.1.0
+pydantic==2.10.6
+pydantic-core==2.27.2
+pydantic-settings==2.8.1
+python-dotenv==1.0.1
+typing-extensions>=4.12.2   # Python 3.8 的 Annotated 從這裡來
 
 # ---------- 資料庫（SQL Server / async）----------
-sqlalchemy[asyncio]>=2.0.0,<2.1.0
-aioodbc>=0.5.0,<0.6.0
-pyodbc>=4.0.39,<5.2.0
+# SQLAlchemy 2.0.23 起才內建 mssql+aioodbc 方言
+sqlalchemy[asyncio]>=2.0.23,<2.1
+aioodbc==0.5.0
+pyodbc==5.2.0
 
 # ---------- Excel 工具 ----------
-pandas>=1.3.0
-openpyxl>=3.0.0,<3.2.0
+# pandas 1.2.4 需搭配 numpy 1.20.x；numpy 1.24 之後移除了舊別名
+pandas==1.2.4
+numpy>=1.20,<1.21
+openpyxl==3.0.7

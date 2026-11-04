@@ -5,18 +5,19 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 
 from app.schemas.base import ApiResponse
-from app.utils.excel_handler import ExcelHandler
+from app.utils.excel_handler import ExcelHandler, dataframe_to_records
 from app.utils.excel_validation import ColumnRule, DataType
 
 router = APIRouter(prefix="/excel", tags=["Excel"])
 
 # 示範用固定路徑；實務上應改為上傳檔或從 DB / 設定取得
-SAMPLE_FILE = Path(__file__).resolve().parents[4] / "output_examples" / "02_multi_sheet.xlsx"
+SAMPLE_FILE = Path(__file__).resolve().parents[5] / "output_examples" / "02_multi_sheet.xlsx"
 
 
 def _run_sync(func, *args, **kwargs):  # type: ignore[no-untyped-def]
@@ -64,7 +65,7 @@ async def read_sheet(
 
     total = len(df)
     page_df = df.iloc[offset: offset + limit]
-    records = page_df.where(page_df.notna(), None).to_dict(orient="records")
+    records = dataframe_to_records(page_df)
 
     return ApiResponse(
         data={
@@ -174,7 +175,7 @@ async def merge_all_sheets() -> ApiResponse:
 
     handler = ExcelHandler(SAMPLE_FILE)
     merged = await _run_sync(handler.merge_sheets, add_source_column=True)
-    records = merged.where(merged.notna(), None).to_dict(orient="records")
+    records = dataframe_to_records(merged)
 
     return ApiResponse(
         data={
@@ -212,7 +213,12 @@ async def export_excel(
     return StreamingResponse(
         buffer,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}"},
+        # HTTP header 只能放 latin-1；中文檔名要用 RFC 5987 的 filename* 編碼
+        headers={
+            "Content-Disposition": (
+                f"attachment; filename=export.xlsx; filename*=UTF-8''{quote(filename)}"
+            )
+        },
     )
 
 
@@ -231,7 +237,7 @@ async def upload_excel(file: UploadFile = File(...)) -> ApiResponse:
         raise HTTPException(status_code=400, detail="僅支援 .xlsx 格式")
 
     # 存到暫存目錄
-    upload_dir = Path(__file__).resolve().parents[4] / "uploads"
+    upload_dir = Path(__file__).resolve().parents[5] / "uploads"
     upload_dir.mkdir(exist_ok=True)
 
     # 使用安全檔名
@@ -247,7 +253,7 @@ async def upload_excel(file: UploadFile = File(...)) -> ApiResponse:
 
         for info in sheet_info:
             df = await _run_sync(handler.read_sheet, sheet_name=info["name"])
-            records = df.head(10).where(df.head(10).notna(), None).to_dict(orient="records")
+            records = dataframe_to_records(df.head(10))
             all_data["sheets"].append({
                 "name": info["name"],
                 "total_rows": len(df),
